@@ -1,61 +1,70 @@
-  import { Button, StyleSheet, Text, TextInput, View } from "react-native";
-  import { useState } from "react";
+import { StyleSheet, View, FlatList } from "react-native";
+import { useState } from "react";
+import GoalItem from "./components/GoalItem";
+import GoalInput from "./components/GoalInput";
 
-  export default function App() {
-    const [goal, setGoal] = useState('');
-    const [goals, setGoals] = useState<string[]>([]);
+export default function App() {
+  const [goals, setGoals] = useState<{ text: string; id: string }[]>([]);
 
-    function goalInputHandler(entredText: string) {
-      setGoal(entredText);
-    }
-
-    function addGoalHandler() {
-      setGoals(currentCourseGoals => [...currentCourseGoals, goal]);
-    }
-
-    return (
-      <View style={styles.container}>
-        <View style={styles.inputWrapper}>
-          <TextInput
-            style={styles.textInput}
-            placeholder="Type your goal here"
-            onChangeText={goalInputHandler}
-          />
-          <Button onPress={addGoalHandler} title="Add Goal" />
-        </View>
-        <View style={styles.goalsWrapper}>
-            {
-              goals.map((goal) => <Text key={goal}>{goal}</Text>)
-            }
-        </View>
-      </View>
-    );
+  function addGoalHandler(goal: string) {
+    setGoals((currentCourseGoals) => [
+      ...currentCourseGoals,
+      { text: goal, id: Math.random().toString() },
+    ]);
   }
 
-  const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      padding: 50,
-      paddingHorizontal: 16,
-    },
-    inputWrapper: {
-      flex: 1,
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "center",
-      marginBottom: 24,
-      borderBottomWidth: 1,
-      borderBottomColor: "#000",
-    },
-    textInput: {
-      borderWidth: 1,
-      borderColor: "#cccccc",
-      width: "70%",
-      marginRight: 8,
-      padding: 8,
-    },
-    goalsWrapper: {
-      flex: 5,
-      flexDirection: "column"
-    },
-  });
+  function deleteGoalHandler(id: string) {
+    setGoals(currentCourseGoals => {
+      return currentCourseGoals.filter((goal) => goal.id !== id );
+    })
+  }
+
+  return (
+    <View style={styles.container}>
+      <GoalInput addGoalFunc={addGoalHandler} />
+      <View style={styles.goalsWrapper}>
+        {/*  ---> FlatList optimizes scrolling by only
+        rendering whats required <---
+        
+        <ScrollView alwaysBounceVertical={false}>
+        {goals.map((goal) => (
+          <View style={styles.goalsItem} key={goal}>
+            <Text style={styles.text}>{goal}</Text>
+          </View>
+        ))}
+      </ScrollView> 
+      
+      */}
+
+        <FlatList
+          data={goals}
+          renderItem={(itemData) => {
+            return (
+              <GoalItem
+                text={itemData.item.text}
+                id={itemData.item.id}
+                onDeleteItem={deleteGoalHandler}
+              />
+            );
+          }}
+          keyExtractor={(item, index) => {
+            return item.id;
+          }}
+          alwaysBounceVertical={false}
+        />
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 50,
+    paddingHorizontal: 16,
+  },
+  goalsWrapper: {
+    flex: 5,
+    flexDirection: "column",
+  },
+});
