@@ -4,17 +4,20 @@ import React from "react";
 interface Props {
   text: string;
   id: string;
-  onDeleteItem: (id : string) => void;
+  onDeleteItem: (id: string) => void;
 }
 
 const GoalItem: React.FC<Props> = (props) => {
-
   return (
-    <Pressable onPress={props.onDeleteItem.bind(this, props.id)}>
-      <View style={styles.goalsItem}>
+    <View style={styles.goalsItem}>
+      <Pressable
+        android_ripple={{ color: "#210644", borderless: true }}
+        onPress={props.onDeleteItem.bind(this, props.id)}
+        style={({pressed}) => pressed && styles.pressedItem }
+      >
         <Text style={styles.text}>{props.text}</Text>
-      </View>
-    </Pressable>
+      </Pressable>
+    </View>
   );
 };
 
@@ -23,11 +26,14 @@ export default GoalItem;
 const styles = StyleSheet.create({
   goalsItem: {
     margin: 8,
-    padding: 8,
     backgroundColor: "purple",
     borderRadius: 6,
   },
+  pressedItem: {
+    opacity: 0.5,
+  },
   text: {
     color: "#fff",
+    padding: 8,
   },
 });
